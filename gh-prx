@@ -1,35 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Hello gh-prx!"
+deps=(jq gum)
 
-# Snippets to help get started:
+for dep in "${deps[@]}"; do
+    type -p "${dep}" > /dev/null || { >&2 echo "gh prx: missing dep: ${dep}"; exit 1; }
+done
 
-# Determine if an executable is in the PATH
-# if ! type -p ruby >/dev/null; then
-#   echo "Ruby not found on the system" >&2
-#   exit 1
-# fi
+choices=$(gh pr list "${@}" --json author,title,number | jq -r '.[] | "#\(.number): \(.title) (@\(.author.login))"')
 
-# Pass arguments through to another command
-# gh issue list "$@" -R cli/cli
+# No PRs open, nothing to do.
+[[ -z "${choices}" ]] && exit 0
 
-# Using the gh api command to retrieve and format information
-# QUERY='
-#   query($endCursor: String) {
-#     viewer {
-#       repositories(first: 100, after: $endCursor) {
-#         nodes {
-#           nameWithOwner
-#           stargazerCount
-#         }
-#       }
-#     }
-#   }
-# '
-# TEMPLATE='
-#   {{- range $repo := .data.viewer.repositories.nodes -}}
-#     {{- printf "name: %s - stargazers: %v\n" $repo.nameWithOwner $repo.stargazerCount -}}
-#   {{- end -}}
-# '
-# exec gh api graphql -f query="${QUERY}" --paginate --template="${TEMPLATE}"
+choice=$(gum choose --header="Select PR:" <<< "${choices}" | cut -d' ' -f1 | tr -d '#:')
+
+[[ -z "${choice}" ]] && exit 0
+
+gh pr checkout "${choice}"
