@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-deps=(jq gum)
+deps=(gum)
 
 for dep in "${deps[@]}"; do
     type -p "${dep}" > /dev/null || { >&2 echo "gh prx: missing dep: ${dep}"; exit 1; }
 done
 
-choices=$(gh pr list "${@}" --json author,title,number | jq -r '.[] | "#\(.number): \(.title) (@\(.author.login))"')
+choices=$(gh pr list "${@}" --json author,title,number --jq '.[] | "#\(.number): \(.title) (@\(.author.login))"')
 
 # No PRs open, nothing to do.
 [[ -z "${choices}" ]] && exit 0
