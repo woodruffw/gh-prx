@@ -8,11 +8,15 @@ Like `gh pr checkout`, but express.
 
 ## Installation
 
-`gh prx` needs `jq` and `gum`. On macOS:
+`gh prx` needs [`jq`] and [`gum`]. On macOS:
 
 ```bash
 brew install jq gum
 ```
+
+[`jq`]: https://jqlang.github.io/jq/
+
+[`gum`]: https://github.com/charmbracelet/gum
 
 Then, install using `gh extension install`:
 
