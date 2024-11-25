@@ -8,13 +8,17 @@ Like `gh pr checkout`, but express.
 
 ## Installation
 
-`gh prx` needs [`gum`]. On macOS:
+`gh prx` needs [`gum`] or [`fzf`]. On macOS:
 
 ```bash
+brew install fzf
+# OR
 brew install gum
 ```
 
 [`gum`]: https://github.com/charmbracelet/gum
+
+[`fzf`]: https://github.com/junegunn/fzf
 
 Then, install using `gh extension install`:
 

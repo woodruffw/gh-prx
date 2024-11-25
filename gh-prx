@@ -1,19 +1,24 @@
 #!/usr/bin/env bash
 set -e
 
-deps=(gum)
-
-for dep in "${deps[@]}"; do
-    type -p "${dep}" > /dev/null || { >&2 echo "gh prx: missing dep: ${dep}"; exit 1; }
-done
-
 choices=$(gh pr list "${@}" --json author,title,number --jq '.[] | "#\(.number): \(.title) (@\(.author.login))"')
 
 # No PRs open, nothing to do.
 [[ -z "${choices}" ]] && exit 0
 
-choice=$(gum choose --header="Select PR:" <<< "${choices}" | cut -d' ' -f1 | tr -d '#:')
+if type -p fzf > /dev/null; then
+    choice=$(fzf --prompt="Select PR > " <<< "${choices}")
+elif type -p gum > /dev/null; then
+    choice=$(gum choose --header="Select PR:" <<< "${choices}")
+else
+    >&2 echo "gh prx: need 'gum' or 'fzf' for fuzzy search"
+    exit 1
+fi
+
+choice=$(cut -d' ' -f1 <<< "${choice}" | tr -d '#:')
 
 [[ -z "${choice}" ]] && exit 0
 
-gh pr checkout "${choice}"
+[[ -z "${NOOP}" ]] \
+    && gh pr checkout "${choice}" \
+    || echo "dry-run: would have run 'gh pr checkout ${choice}'"
